@@ -53,13 +53,16 @@ func (this *authService) IsAuthenticatedButExpired(next http.Handler) http.Handl
                     log.Println("Expired but valid. Proceeding to next call in chain...")
                     // Call the next handler, which can be another middleware in the chain, or the final handler.
                     next.ServeHTTP(w, r)
+                    return
                 }
             }
             // otherwise, set unauthorized
-            w.WriteHeader(http.StatusUnauthorized)
+            http.Error(w, "Unauthorized.", http.StatusUnauthorized)
+            return
         } else {
             // otherwise, JWT check has been successful
             next.ServeHTTP(w, r)
+            return
         }
     })
 }
