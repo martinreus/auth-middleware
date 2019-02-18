@@ -20,7 +20,7 @@ var expires2099 = int64(4099716484)
   Should convert valid token and return no error.
 */
 func TestToAuthenticationWithValidToken(t *testing.T) {
-    authService := NewAuthService(&AuthConfig{
+    authService := NewService(&Config{
         JWTPrivateKey: []byte("privatesigningpassowrd"),
     })
 
@@ -53,7 +53,7 @@ func TestToAuthenticationWithValidToken(t *testing.T) {
 }
 
 func TestToValidJWTTokenCookie(t *testing.T) {
-    authService := NewAuthService(&AuthConfig{
+    authService := NewService(&Config{
         JWTPrivateKey: []byte("privatesigningpassowrd"),
     })
 
@@ -82,7 +82,7 @@ func TestToValidJWTTokenCookie(t *testing.T) {
 
 func TestToJWTTokenCookie(t *testing.T) {
     // given
-    authService := NewAuthService(&AuthConfig{
+    authService := NewService(&Config{
         JWTPrivateKey: []byte("privatesigningpassowrd"),
     })
 
@@ -113,7 +113,7 @@ func TestToJWTTokenCookie(t *testing.T) {
 
 func TestToAuthenticationWithExpiredAndTamperedToken(t *testing.T) {
     // actual Password in the to be tested token is different, simulating a tampered token
-    authService := NewAuthService(&AuthConfig{
+    authService := NewService(&Config{
         JWTPrivateKey: []byte("somethingSomething"),
     })
 
@@ -139,7 +139,7 @@ func TestToAuthenticationWithExpiredAndTamperedToken(t *testing.T) {
 */
 func TestToAuthentication(t *testing.T) {
     // given
-    authService := NewAuthService(&AuthConfig{
+    authService := NewService(&Config{
         JWTPrivateKey: []byte("privatesigningpassowrd"),
     })
 
@@ -179,7 +179,7 @@ func TestToAuthentication(t *testing.T) {
 }
 
 func TestRefreshAuthentication(t *testing.T) {
-    authService := NewAuthService(&AuthConfig{
+    authService := NewService(&Config{
         JWTCookieName: "JWT",
     })
 

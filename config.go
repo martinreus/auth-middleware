@@ -1,6 +1,6 @@
 package auth
 
-type AuthConfig struct {
+type Config struct {
     JWTPrivateKey []byte
     // expires in seconds
     TokenExpiresIn int64
@@ -9,8 +9,8 @@ type AuthConfig struct {
 }
 
 
-func DefaultAuthConfig() *AuthConfig {
-    return &AuthConfig{
+func DefaultAuthConfig() *Config {
+    return &Config{
         JWTCookieName:  "JWT",
         TokenExpiresIn: 120,
         Issuer:         "AuthServer",

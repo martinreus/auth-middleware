@@ -10,16 +10,16 @@ import (
 )
 
 /**
-structure holding data for instantiation of AuthService
+structure holding data for instantiation of Service
 */
 type authService struct {
-    authConfig *AuthConfig
+    authConfig *Config
 }
 
 /**
-Constructor for authService (which is the AuthService instantiation)
+Constructor for authService (which is the Service instantiation)
 */
-func NewAuthService(authConfig *AuthConfig) AuthService {
+func NewService(authConfig *Config) Service {
     return &authService{
         authConfig,
     }

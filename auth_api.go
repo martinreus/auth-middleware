@@ -25,7 +25,7 @@ type Authentication struct {
     Authorities []GrantedAuthority `json:"authorities,omitempty"`
 }
 
-type AuthService interface {
+type Service interface {
 
     ToAuthenticationFromRequest(r *http.Request) (*Authentication, error)
 
