@@ -7,13 +7,13 @@ package main
 
 import (
     "github.com/gorilla/mux"
-    "github.com/martinreus/csrf"
+    "github.com/martinreus/auth-middleware"
 )
 
 func main() {
     r := mux.NewRouter()
-    authConfig := config.DefaultAuthConfig()
-    authMiddleware := auth.NewAuthService(authConfig)
+    authConfig := auth.DefaultConfig()
+    authMiddleware := auth.NewService(authConfig)
 
     api := r.PathPrefix("/api").Subrouter()
     api.HandleFunc("/user/{id}", GetUser).Methods("GET")
