@@ -49,10 +49,10 @@ type Service interface {
         should assume that a refresh may only be issued if the user has not changed his password, for example.
         Other restrictions may apply for the refresh.
      */
-    RefreshAuthentication(authentication *Authentication) *Authentication
+    RefreshAuthentication(authentication *Authentication) (*Authentication, error)
 
     /**
-      Middleware that checks if the user is in possession of a valid, non expired JWT token.
+      Middleware that checks if the user is in possession of a valid, short lived, non expired JWT token.
     */
     IsAuthenticated(next http.Handler) http.Handler
 
@@ -60,17 +60,10 @@ type Service interface {
        Middleware for relaxed check of authentication using JWT bearer token.
        This method is used only for refreshing a valid JWT Token after it has expired.
 
-       The standard JWT refresh tokens from the oauth specification have normally a very
-       long validity time (might be configured for shorter times though...). Refresh tokens are pointless.
-       Why have another kind of token if the expired one can be used to generate another fresh one?
-       After all, the token is only expired, but can be verified for its integrity.
-
-       It is of course clear that an expired token cannot be used for an API access; only for refreshing purposes.
-
-       Furthermore, every Token Refresh also needs to be checked against the user's database;
-       if, for example, the user changed its Password, it is not safe to assume that the expired token is
-       safe anymore; so any alterations on the user's data automatically revokes the possibility of
-       being able to refresh the expired token.
+       Refreshing an expired token is allowed here to avoid having to deal with refresh tokens (as defined in OAuth
+       specification). Refreshing a token of course involves checking if the user has not altered its password,
+       or checking for a security timestamp; that means that if a JWT has been exposed by any means, we may "block"
+       refreshes of all the tokens out in the wild, and the user is forced to login again.
     */
     IsAuthenticatedButExpired(next http.Handler) http.Handler
 }

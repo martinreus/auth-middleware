@@ -2,18 +2,28 @@ package auth
 
 type Config struct {
     JWTPrivateKey []byte
-    // expires in seconds
+    // expires in seconds. Defaults to 5 minutes.
     TokenExpiresIn int64
     Issuer         string
     JWTCookieName  string
+    // max allowed time in seconds, for which an expired token may be renewed. Defaults to one month
+    MaxRenewalTime int
 }
 
+/**
+  Default values used:
 
-func DefaultAuthConfig() *Config {
+  JWTCookieName:  "JWT",
+  TokenExpiresIn: 900,
+  Issuer:         "AuthServer",
+  MaxRenewalTime: 2592000,
+*/
+func DefaultAuthConfig(privateKey []byte) *Config {
     return &Config{
         JWTCookieName:  "JWT",
-        TokenExpiresIn: 120,
+        TokenExpiresIn: 300, //5 minutes in seconds
         Issuer:         "AuthServer",
-        JWTPrivateKey:  []byte("somethinghere"),
+        JWTPrivateKey:  privateKey,
+        MaxRenewalTime: 2592000, //one month in seconds
     }
 }

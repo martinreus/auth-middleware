@@ -10,18 +10,28 @@ import (
 )
 
 /**
-structure holding data for instantiation of Service
+    structure holding data for instantiation of Service
 */
 type authService struct {
     authConfig *Config
 }
 
 /**
-Constructor for authService (which is the Service instantiation)
+    Constructor for authService (which is the Service instantiation)
 */
-func NewService(authConfig *Config) Service {
+func New(authConfig *Config) Service {
     return &authService{
         authConfig,
+    }
+}
+
+/**
+    Constructor for authService (which is the Service instantiation)
+*/
+func NewWithDefaults(privateKey string) Service {
+    config := DefaultAuthConfig([]byte(privateKey))
+    return &authService{
+        config,
     }
 }
 
@@ -109,15 +119,19 @@ func (this *authService) GetClearedJWTCookie() *http.Cookie {
     }
 }
 
-func (this *authService) RefreshAuthentication(oldAuth *Authentication) *Authentication {
+func (this *authService) RefreshAuthentication(oldAuth *Authentication) (*Authentication, error) {
     var refreshedAuth Authentication
-    now := time.Now().Unix()
+    now := time.Now().In(time.UTC).Unix()
 
+    // first check if MaxRenewalTime has been reached
+    if now > int64(this.authConfig.MaxRenewalTime) + oldAuth.IssuedAt {
+        // if so, user is obliged to log in again, renewal of tokens is refused.
+        return nil, &Error{ErrorCode: MaxRefreshTimeReached}
+    }
     refreshedAuth = *oldAuth
-    refreshedAuth.IssuedAt = now
     refreshedAuth.ExpiresAt = now + this.authConfig.TokenExpiresIn
 
-    return &refreshedAuth
+    return &refreshedAuth, nil
 }
 
 // --------------------------
