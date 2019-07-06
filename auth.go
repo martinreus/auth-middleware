@@ -134,6 +134,10 @@ func (this *authService) RefreshAuthentication(oldAuth *Authentication) (*Authen
     return &refreshedAuth, nil
 }
 
+func (this *authService) HasAnyRole(roles ...string) func(next http.Handler) http.Handler {
+    panic("implement me")
+}
+
 // --------------------------
 // private stuff
 // --------------------------

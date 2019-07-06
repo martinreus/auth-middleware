@@ -25,6 +25,10 @@ type Authentication struct {
     Authorities []GrantedAuthority `json:"authorities,omitempty"`
 }
 
+
+
+
+
 type Service interface {
 
     ToAuthenticationFromRequest(r *http.Request) (*Authentication, error)
@@ -66,4 +70,11 @@ type Service interface {
        refreshes of all the tokens out in the wild, and the user is forced to login again.
     */
     IsAuthenticatedButExpired(next http.Handler) http.Handler
+
+
+    /**
+        Middleware checks that user in possession of a valid, non expired JWT Token and also has at least one
+        of the given Roles assigned to him.
+     */
+    HasAnyRole(roles ... string) func(next http.Handler) http.Handler
 }
