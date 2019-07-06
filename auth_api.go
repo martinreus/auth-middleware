@@ -25,10 +25,6 @@ type Authentication struct {
     Authorities []GrantedAuthority `json:"authorities,omitempty"`
 }
 
-
-
-
-
 type Service interface {
 
     ToAuthenticationFromRequest(r *http.Request) (*Authentication, error)
@@ -73,7 +69,7 @@ type Service interface {
 
 
     /**
-        Middleware checks that user in possession of a valid, non expired JWT Token and also has at least one
+        Middleware checks that user is in possession of a valid, non expired JWT Token and also has at least one
         of the given Roles assigned to him.
      */
     HasAnyRole(roles ... string) func(next http.Handler) http.Handler
