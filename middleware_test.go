@@ -98,6 +98,24 @@ func TestHasAnyRoleMiddlewareForValidTokenButDifferentRoleThanExpected(t *testin
     }
 }
 
+func TestUnauthorizedForInvalidToken(t *testing.T) {
+    service := createAuthService("privateKey")
+    nextHandler := &nextHandler{}
+
+    req, rr := newRequestResponseEmulation(t)
+
+    req.AddCookie(&http.Cookie{Name: "JWT", Value: expiredToken})
+
+    service.HasAnyRole("USER")(nextHandler).ServeHTTP(rr, req)
+
+    if nextHandler.Visited {
+        t.Error("Next handler should not have been called for valid JWT token with other not wanted role")
+    }
+    if rr.Code != http.StatusUnauthorized {
+        t.Error("Status should be unauthorized")
+    }
+}
+
 // ----- test helpers ----------------
 
 func newRequestResponseEmulation(t *testing.T) (*http.Request, *httptest.ResponseRecorder) {
