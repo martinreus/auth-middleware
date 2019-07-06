@@ -4,7 +4,6 @@ import (
     "fmt"
     "github.com/dgrijalva/jwt-go"
     "github.com/mitchellh/mapstructure"
-    "log"
     "net/http"
     "time"
 )
@@ -40,7 +39,6 @@ func NewWithDefaults(privateKey string) Service {
  */
 func (this *authService) ToAuthenticationFromRequest(r *http.Request) (*Authentication, error) {
     if cookie, cookieError := r.Cookie(this.authConfig.JWTCookieName); cookieError != nil {
-        log.Println("No Authentication cookie found!")
         return nil, cookieError
     } else {
         return this.ToAuthentication(cookie)
@@ -54,7 +52,7 @@ func (this *authService) ToAuthentication(cookie *http.Cookie) (*Authentication,
     token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
         // Don't forget to validate the alg is what you expect:
         if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-            return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+            return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
         }
 
         return this.authConfig.JWTPrivateKey, nil
@@ -132,10 +130,6 @@ func (this *authService) RefreshAuthentication(oldAuth *Authentication) (*Authen
     refreshedAuth.ExpiresAt = now + this.authConfig.TokenExpiresIn
 
     return &refreshedAuth, nil
-}
-
-func (this *authService) HasAnyRole(roles ...string) func(next http.Handler) http.Handler {
-    panic("implement me")
 }
 
 // --------------------------
