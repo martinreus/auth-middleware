@@ -9,14 +9,14 @@ import (
 const validTokenWithSYSTEMRole = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTE4MDAwMTYsImlhdCI6MTU2MjQxMTIzMiwiaXNzIjoiQXV0aFNlcnZpY2UiLCJzdWIiOiJhdXRoLXNlcnZpY2UiLCJuYW1lIjoiYXV0aC1zZXJ2aWNlIiwidXNlcm5hbWUiOiJhdXRoLXNlcnZpY2UiLCJhdXRob3JpdGllcyI6W3sicm9sZSI6IlNZU1RFTSJ9XX0.v7I5-Zf4UASLgW4RRyIiihwE6cHnEXLwhWJxMLgLjf5GnbIKTqMnDNqhxE1gd0liNkM7_mcxNm63rbCDwIHhmw"
 
 func TestAuthenticatedMiddlewareForExpiredToken(t *testing.T) {
-    service := createAuthService("privatesigningpassowrd")
+    middleware := create("privatesigningpassowrd")
     nextHandler := &nextHandler{}
 
     req, rr := newRequestResponseEmulation(t)
 
     req.AddCookie(&http.Cookie{Name: "JWT", Value: expiredToken})
 
-    service.IsAuthenticated(nextHandler).ServeHTTP(rr, req)
+    middleware.IsAuthenticated(nextHandler).ServeHTTP(rr, req)
 
     if nextHandler.Visited {
         t.Error("Next handler should not have been called for expired JWT token")
@@ -27,14 +27,14 @@ func TestAuthenticatedMiddlewareForExpiredToken(t *testing.T) {
 }
 
 func TestAuthenticatedMiddlewareForValidToken(t *testing.T) {
-    service := createAuthService("privatesigningpassowrd")
+    middleware := create("privatesigningpassowrd")
     nextHandler := &nextHandler{}
 
     req, rr := newRequestResponseEmulation(t)
 
     req.AddCookie(&http.Cookie{Name: "JWT", Value: tokenValidUntil2099})
 
-    service.IsAuthenticated(nextHandler).ServeHTTP(rr, req)
+    middleware.IsAuthenticated(nextHandler).ServeHTTP(rr, req)
 
     if !nextHandler.Visited {
         t.Error("Next handler should have been called for valid JWT token")
@@ -45,14 +45,14 @@ func TestAuthenticatedMiddlewareForValidToken(t *testing.T) {
 }
 
 func TestHasAnyRoleMiddlewareForValidTokenButWithoutRole(t *testing.T) {
-    service := createAuthService("privatesigningpassowrd")
+    middleware := create("privatesigningpassowrd")
     nextHandler := &nextHandler{}
 
     req, rr := newRequestResponseEmulation(t)
 
     req.AddCookie(&http.Cookie{Name: "JWT", Value: tokenValidUntil2099})
 
-    service.HasAnyRole("SYSTEM")(nextHandler).ServeHTTP(rr, req)
+    middleware.HasAnyRole("SYSTEM")(nextHandler).ServeHTTP(rr, req)
 
     if nextHandler.Visited {
         t.Error("Next handler should not have been called for valid JWT without SYSTEM role")
@@ -63,14 +63,14 @@ func TestHasAnyRoleMiddlewareForValidTokenButWithoutRole(t *testing.T) {
 }
 
 func TestHasAnyRoleMiddlewareForValidTokenAndSYSTEMRole(t *testing.T) {
-    service := createAuthService("privateKey")
+    middleware := create("privateKey")
     nextHandler := &nextHandler{}
 
     req, rr := newRequestResponseEmulation(t)
 
     req.AddCookie(&http.Cookie{Name: "JWT", Value: validTokenWithSYSTEMRole})
 
-    service.HasAnyRole("SYSTEM")(nextHandler).ServeHTTP(rr, req)
+    middleware.HasAnyRole("SYSTEM")(nextHandler).ServeHTTP(rr, req)
 
     if !nextHandler.Visited {
         t.Error("Next handler should have been called for valid JWT token with SYSTEM role")
@@ -81,14 +81,14 @@ func TestHasAnyRoleMiddlewareForValidTokenAndSYSTEMRole(t *testing.T) {
 }
 
 func TestHasAnyRoleMiddlewareForValidTokenButDifferentRoleThanExpected(t *testing.T) {
-    service := createAuthService("privateKey")
+    middleware := create("privateKey")
     nextHandler := &nextHandler{}
 
     req, rr := newRequestResponseEmulation(t)
 
     req.AddCookie(&http.Cookie{Name: "JWT", Value: validTokenWithSYSTEMRole})
 
-    service.HasAnyRole("USER")(nextHandler).ServeHTTP(rr, req)
+    middleware.HasAnyRole("USER")(nextHandler).ServeHTTP(rr, req)
 
     if nextHandler.Visited {
         t.Error("Next handler should not have been called for valid JWT token with other not wanted role")
@@ -99,14 +99,14 @@ func TestHasAnyRoleMiddlewareForValidTokenButDifferentRoleThanExpected(t *testin
 }
 
 func TestUnauthorizedForInvalidToken(t *testing.T) {
-    service := createAuthService("privateKey")
+    middleware := create("privateKey")
     nextHandler := &nextHandler{}
 
     req, rr := newRequestResponseEmulation(t)
 
     req.AddCookie(&http.Cookie{Name: "JWT", Value: expiredToken})
 
-    service.HasAnyRole("USER")(nextHandler).ServeHTTP(rr, req)
+    middleware.HasAnyRole("USER")(nextHandler).ServeHTTP(rr, req)
 
     if nextHandler.Visited {
         t.Error("Next handler should not have been called for valid JWT token with other not wanted role")
@@ -131,12 +131,12 @@ type nextHandler struct {
     Visited bool
 }
 
-func (this *nextHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-    this.Visited = true
+func (handler *nextHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+    handler.Visited = true
 }
 
-func createAuthService(key string) Service {
-    return New(&Config{
+func create(key string) Middleware {
+    return New(Config{
         JWTPrivateKey: []byte(key),
     })
 }

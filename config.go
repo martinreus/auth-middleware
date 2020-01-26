@@ -18,8 +18,8 @@ type Config struct {
   Issuer:         "AuthServer",
   MaxRenewalTime: 2592000,
 */
-func DefaultAuthConfig(privateKey []byte) *Config {
-	return &Config{
+func DefaultAuthConfig(privateKey []byte) Config {
+	return Config{
 		JWTCookieName:  "JWT",
 		TokenExpiresIn: 300, //5 minutes in seconds
 		Issuer:         "AuthServer",

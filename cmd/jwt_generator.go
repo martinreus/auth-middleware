@@ -57,7 +57,7 @@ func main() {
 		os.Exit(1)
 	}
 
-    authService := auth.New(&auth.Config{JWTPrivateKey: []byte(jwtConfig.Config.PrivateKey)})
+    authService := auth.New(auth.Config{JWTPrivateKey: []byte(jwtConfig.Config.PrivateKey)})
 
     cookie := authService.ToJWTCookie(&jwtConfig.Payload)
 
