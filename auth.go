@@ -148,7 +148,6 @@ func (service authService) constructAuthentication(claims jwt.MapClaims) (*Authe
 
 }
 
-// Converts to String, panics if not possible.
 func toString(aString interface{}) string {
 	if s, ok := aString.(string); ok {
 		return s
@@ -156,9 +155,6 @@ func toString(aString interface{}) string {
 	return ""
 }
 
-/**
-Converts to float, panics if not possible.
-*/
 func toFloat64(aNumber interface{}) float64 {
 	if convertedNumb, ok := aNumber.(float64); ok {
 		return convertedNumb
